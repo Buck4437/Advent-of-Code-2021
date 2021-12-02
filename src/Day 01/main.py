@@ -1,4 +1,5 @@
-nums = [int(line.strip()) for line in open("input.txt", "r")]
+with open("input.txt", "r") as f:
+    nums = [int(line.strip()) for line in f.readlines()]
 
 
 def count(size=1):
