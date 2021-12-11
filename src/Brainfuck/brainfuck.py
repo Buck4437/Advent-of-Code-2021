@@ -29,7 +29,9 @@ class Brainfuck:
             raise BrainfuckException
         return dct
 
-    def run(self, ins=[]):
+    def run(self, ins=None):
+        if ins is None:
+            ins = []
         i = ins
         while True:
             if self.ip >= len(self.script):
