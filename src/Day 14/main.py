@@ -4,7 +4,7 @@ with open("input.txt") as f:
     init = f.readline().strip()
 
 with open("rules.txt") as f:
-    r = dict(map(lambda r: (r[:2], r.strip()[-1]), f.readlines()))
+    r = dict(map(lambda s: (s[:2], s.strip()[-1]), f.readlines()))
 
 mem = {}
 
