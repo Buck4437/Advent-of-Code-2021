@@ -105,16 +105,16 @@ class OperatorPacket(Packet):
 
 class Queue:
     def __init__(self, s):
-        self.stack = list(s)
+        self.queue = list(s)
 
     def pop(self, count=1):
         s = ""
         for i in range(count):
-            s += self.stack.pop(0)
+            s += self.queue.pop(0)
         return s
 
     def __str__(self):
-        return str(self.stack)
+        return str(self.queue)
 
 
 def parse(s):
