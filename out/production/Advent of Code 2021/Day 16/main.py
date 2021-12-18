@@ -12,6 +12,13 @@ def bin_to_int(s):
     return int(s, 2)
 
 
+def mul(vals):
+    base = 1
+    for val in vals:
+        base *= val
+    return base
+
+
 class Packet:
     def __init__(self, ver, id):
         self.ver = bin_to_int(ver)
@@ -23,6 +30,9 @@ class Packet:
     def get_val(self):
         return 0
 
+    def sum_ver(self):
+        return self.ver
+
 
 class LiteralPacket(Packet):
     def __init__(self, ver, id, val):
@@ -32,16 +42,16 @@ class LiteralPacket(Packet):
         self.val = val
 
     def bit_len(self):
-        return 6 + len(self.val)
+        return 6 + len(self.val) + len(self.val) // 4
 
     def get_val(self):
         return bin_to_int(self.val)
 
-    def tostr(self):
-        return "LitPacket" + str(self.get_val()) + "Length" + str(self.bit_len())
+    def sum_ver(self):
+        return self.ver
 
-    def __str__(self):
-        return self.tostr()
+    def sum_val(self):
+        return self.get_val()
 
 
 class OperatorPacket(Packet):
@@ -57,64 +67,74 @@ class OperatorPacket(Packet):
         self.sub.append(p)
 
     def is_full(self):
-        if int(self.mode) == "1":
+        if int(self.mode) == 1:
             return len(self.sub) >= self.maxlen
-        print(self.bit_len_sub())
         return self.bit_len_sub() >= self.maxlen
 
     def bit_len_sub(self):
         return sum(map(lambda x: x.bit_len(), self.sub))
 
     def bit_len(self):
-        return 7 + self.bit_len_sub()
+        return 7 + self.bit_len_sub() + (15 if self.mode == "0" else 11)
 
     def get_val(self):
         return None
 
-    def tostr(self):
-        return "OpPacket" + "{" + str(list(map(lambda x: x.tostr(), self.sub))) + "}" + "Length" + str(self.bit_len()) + "Mode" + self.mode
+    def sum_ver(self):
+        return self.ver + sum(map(lambda x: x.sum_ver(), self.sub))
 
-    def __str__(self):
-        return self.tostr()
+    def sum_val(self):
+        op = int(self.id)
+        vals = list(map(lambda x: x.sum_val(), self.sub))
+        if op == 0:
+            return sum(vals)
+        if op == 1:
+            return mul(vals)
+        if op == 2:
+            return min(vals)
+        if op == 3:
+            return max(vals)
+        if op == 5:
+            return 1 if vals[0] > vals[1] else 0
+        if op == 6:
+            return 1 if vals[0] < vals[1] else 0
+        if op == 7:
+            return 1 if vals[0] == vals[1] else 0
+        raise Exception("What")
 
 
 class Queue:
     def __init__(self, s):
-        self.stack = list(s)
+        self.queue = list(s)
 
     def pop(self, count=1):
         s = ""
         for i in range(count):
-            s += self.stack.pop(0)
+            s += self.queue.pop(0)
         return s
 
     def __str__(self):
-        return str(self.stack)
+        return str(self.queue)
 
 
 def parse(s):
-    print(hex_to_bin(s))
     bits = Queue(hex_to_bin(s))
     stack = []
     while True:
         ver = bits.pop(3)
         id = bits.pop(3)
-        print("ver", ver, "id", id)
         if bin_to_int(id) == 4:
             hlt = False
             val = ""
             while not hlt:
                 hlt = bits.pop() == "0"
                 val += bits.pop(4)
-            print("val", val)
             p = LiteralPacket(ver, id, val)
-            print(p)
             if len(stack) == 0:
                 return p
             while True:
                 super_p = stack.pop()
                 super_p.add_packet(p)
-                print(super_p)
                 if super_p.is_full():
                     if len(stack) == 0:
                         return super_p
@@ -131,5 +151,9 @@ def parse(s):
             p = OperatorPacket(ver, id, maxlen, mode)
             stack.append(p)
 
+
 packet = parse(str_in)
-print(packet)
+# Part 1
+print(packet.sum_ver())
+# Part 2
+print(packet.sum_val())
