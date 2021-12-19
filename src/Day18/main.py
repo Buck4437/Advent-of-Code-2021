@@ -1,5 +1,5 @@
 with open("input.txt") as f:
-    raw_exps = [s.strip() for s in f.readlines()]
+    raw_exp = [s.strip() for s in f.readlines()]
 
 
 class Tree:
@@ -89,7 +89,7 @@ class Tree:
 
 trees = []
 base_tree = None
-for raw in raw_exps:
+for raw in raw_exp:
     val = ""
     tree = Tree()
     for c in raw:
@@ -106,14 +106,14 @@ for raw in raw_exps:
         base_tree = tree
     else:
         base_tree = base_tree.add(tree)
+# Part 1
 print(base_tree.mag())
 
 largest = 0
-print()
 for i in range(len(trees)):
     for j in range(len(trees)):
         if i == j:
             continue
         largest = max(largest, trees[i].add(trees[j]).mag())
-
+# Part 2
 print(largest)
