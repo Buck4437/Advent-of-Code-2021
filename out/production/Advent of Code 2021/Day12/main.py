@@ -6,10 +6,10 @@ node = {}
 
 def add_edge(name, neighbour):
     if name in node.keys():
-        node[name].add(neighbour)
+        node[name].vec_add(neighbour)
     else:
         node[name] = set()
-        node[name].add(neighbour)
+        node[name].vec_add(neighbour)
 
 
 for p in str_paths:
