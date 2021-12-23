@@ -53,11 +53,10 @@ def step():
             char = rules[int(b, 2)]
             if dark_mode and char == "." or not dark_mode and char == "#":
                 new_pixels.add(ngh)
-    print(tsum, iter)
     pixels = new_pixels
 
-t0 = time()
 
+t0 = time()
 for i in range(50):
     step()
     print(i)
