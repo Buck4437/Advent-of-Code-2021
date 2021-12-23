@@ -1,4 +1,3 @@
-from queue import PriorityQueue
 import heapq
 
 ACTIVE = 17
@@ -8,8 +7,6 @@ FULL = 1002
 INFINITY = 9999999999
 HALLWAY_POS = [(x, 1) for x in [1, 2, 4, 6, 8, 10, 11]]
 
-
-BUG_COUNT = 4
 BUG_STR = "ABCD"
 ENERGY = {
     "A": 1,
@@ -17,37 +14,6 @@ ENERGY = {
     "C": 100,
     "D": 1000
 }
-
-# Sample
-# str_input = """
-# #############
-# #...........#
-# ###B#C#B#D###
-#   #D#C#B#A#
-#   #D#B#A#C#
-#   #A#D#C#A#
-#   #########""".strip().split("\n")
-
-str_input = """
-#############
-#...........#
-###A#C#B#A###
-  #D#C#B#A#
-  #D#B#A#C#
-  #D#D#B#C#
-  #########""".strip().split("\n")
-
-PATHS = set()
-start_pos = {x: [] for x in BUG_STR}
-
-for y in range(len(str_input)):
-    row = str_input[y]
-    for x in range(len(row)):
-        char = row[x]
-        if char in ("." + BUG_STR):
-            PATHS.add((x, y))
-        if char in BUG_STR:
-            start_pos[char].append(((x, y), ACTIVE))
 
 
 def nearby(coord):
@@ -83,9 +49,9 @@ def min_dst(st, end, grid):
     return INFINITY
 
 
-def next_room_pos(grid, ltr):
+def next_room_pos(grid, ltr, room_size):
     x_ord = 3 + 2 * (ord(ltr) - ord("A"))
-    for y in range(1 + BUG_COUNT, 1, -1):
+    for y in range(1 + room_size, 1, -1):
         coord = x_ord, y
         if grid[coord] == ".":
             return coord
@@ -98,15 +64,12 @@ def replace(old_bug_position, ltr, idx, new_pair):
     new = {}
     for ltr2 in BUG_STR:
         new[ltr2] = []
-        for idx2 in range(BUG_COUNT):
+        for idx2 in range(len(old_bug_position[ltr2])):
             if ltr == ltr2 and idx == idx2:
                 new[ltr2].append(new_pair)
             else:
                 new[ltr2].append(old_bug_position[ltr2][idx2])
     return new
-
-
-CACHE = {}
 
 
 def hasher(bug_pos):
@@ -116,9 +79,9 @@ def hasher(bug_pos):
     return hsh
 
 
-def bug_sorted(grid):
+def bug_sorted(grid, room_size):
     for ltr in BUG_STR:
-        if next_room_pos(grid, ltr) != FULL:
+        if next_room_pos(grid, ltr, room_size) != FULL:
             return False
     return True
 
@@ -142,11 +105,12 @@ class Node:
         return self.dst <= other.dst
 
 
-def find_min_energy(base_bug_pos):
+def find_min_energy(base_bug_pos, paths):
     base_node = Node(base_bug_pos, 0)
     nodes = {str(base_node): base_node}
     heap = [(0, base_node)]
     heapq.heapify(heap)
+    bug_count = len(base_bug_pos["A"])
 
     while len(heap) != 0:
         dst, cur_node = heapq.heappop(heap)
@@ -157,18 +121,18 @@ def find_min_energy(base_bug_pos):
 
         cur_node.mark_as_visited()
 
-        if len(heap) % 10000 == 0:
-            print(len(heap), dst)
+        # if len(heap) % 10000 == 0:
+        #     print(len(heap), dst)
 
-        cur_grid = create_grid(PATHS, cur_node.info)
-        if bug_sorted(cur_grid):
+        cur_grid = create_grid(paths, cur_node.info)
+        if bug_sorted(cur_grid, bug_count):
             return dst
 
         cur_bug_pos = cur_node.info
         cur_dst = cur_node.dst
 
         for ltr in BUG_STR:
-            for idx in range(BUG_COUNT):
+            for idx in range(bug_count):
                 pos, state = cur_bug_pos[ltr][idx]
                 if state == FIXED:
                     continue
@@ -187,7 +151,7 @@ def find_min_energy(base_bug_pos):
                             nodes[hsh] = new_node
                             heapq.heappush(heap, (new_node.dst, new_node))
                 elif state == HALT:
-                    target = next_room_pos(cur_grid, ltr)
+                    target = next_room_pos(cur_grid, ltr, bug_count)
                     if target is None or target == FULL:
                         continue
                     dst = min_dst(pos, target, cur_grid) * ENERGY[ltr]
@@ -202,7 +166,18 @@ def find_min_energy(base_bug_pos):
                         heapq.heappush(heap, (new_node.dst, new_node))
     return INFINITY
 
-import time
-t0 = time.time()
-print(find_min_energy(start_pos))
-print(time.time() - t0, "s")
+
+def solve(raw):
+    raw = raw.strip().split("\n")
+    paths = set()
+    start_pos = {x: [] for x in BUG_STR}
+
+    for y in range(len(raw)):
+        row = raw[y]
+        for x in range(len(row)):
+            char = row[x]
+            if char in ("." + BUG_STR):
+                paths.add((x, y))
+            if char in BUG_STR:
+                start_pos[char].append(((x, y), ACTIVE))
+    return find_min_energy(start_pos, paths)
