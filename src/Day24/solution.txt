@@ -1,0 +1,94 @@
+inp w
+mul x 0
+add x z
+mod x 26
+div z \d+
+add x -?+\d+
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y \d+
+mul y x
+add z y
+
+
+x = 0 if z % 26 + num2 == digit else 1
+z = (z // num) * (25 * x + 1) + (digit + num3) * x
+
+when num1 is 1:
+x = 1
+z = 26 * z + digit + num3
+
+when num1 = 26:
+x = 0 if z % 26 + num2 == digit else 1
+z = (z // num) * (25 * x + 1) + (digit + num3) * x
+
+
+imagine a base 26 number
+when num1 is 1:
+z append 0
+z last digit become digit + num3
+
+when num1 = 26:
+if last digit of z + num2 (-ve) == digit:
+    z remove last digit
+else:
+    (can't be!)
+    replace last digit of zero with (digit + num3)
+
+
+13
+9
+
+13 17
+91
+
+13 17 22
+918
+
+13 17
+9189
+
+13 17 18
+91897
+
+13 17 18 16
+918973
+
+13 17 18
+9189739
+
+13 17 18 16
+91897399
+
+13 17 18
+918973994
+
+13 17 18 24
+9189739949
+
+91897399498995
+
+9 17 15 -15 12
+51121176121391
+
+ 1  15 4
+ 1  14 16
+ 1  11 14
+ 26  -13 3
+ 1  14 11
+ 1  15 13
+ 26  -7 11
+ 1  10 7
+ 26  -12 12
+ 1  15 15
+ 26  -16 13
+ 26  -9 1
+ 26  -8 15
+ 26  -8 4

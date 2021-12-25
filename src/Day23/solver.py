@@ -121,9 +121,6 @@ def find_min_energy(base_bug_pos, paths):
 
         cur_node.mark_as_visited()
 
-        # if len(heap) % 10000 == 0:
-        #     print(len(heap), dst)
-
         cur_grid = create_grid(paths, cur_node.info)
         if bug_sorted(cur_grid, bug_count):
             return dst
