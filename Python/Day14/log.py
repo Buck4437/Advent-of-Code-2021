@@ -39,7 +39,7 @@ def ans(ct):
 
 
 # Part 1
-print(ans(poly(init, 3)))
+print(ans(poly(init, 10)))
 
-# # Part 2
-# print(ans(poly(init, 40)))
+# Part 2
+print(ans(poly(init, 40)))

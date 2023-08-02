@@ -17,6 +17,7 @@ part2 = """
   #D#D#B#C#
   #########"""
 
+print("Program has started.")
 t0 = time.time()
 print(solve(part1))
 print(time.time() - t0, "s")
