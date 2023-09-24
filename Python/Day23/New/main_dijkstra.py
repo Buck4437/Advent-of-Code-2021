@@ -92,7 +92,7 @@ def main(file, log_all=False):
 
             end_state[coordinate] = (chr(65 + j), 2)
 
-    # Run dijkstra (will switch to A* later)
+    # Run dijkstra
 
     starting_node = hash_dict(start_state)
     distances = {starting_node: 0}
